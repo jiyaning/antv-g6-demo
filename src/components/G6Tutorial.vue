@@ -4,7 +4,7 @@
  * @Author: ji.yaning
  * @Date: 2024-04-10 16:05:30
  * @LastEditors: ji.yaning
- * @LastEditTime: 2024-04-10 17:42:35
+ * @LastEditTime: 2024-04-10 17:48:23
 -->
 <template>
   <div>
@@ -106,8 +106,8 @@ export default {
         container: 'mountNode', // 指定挂载容器
         width: 800, // 图的宽度
         height: 600, // 图的高度
-        fitView: true, // 设置是否将图适配到画布中
-        fitViewPadding: [20, 40, 50, 20], // 画布上四周的留白宽度
+        // fitView: true, // 设置是否将图适配到画布中
+        // fitViewPadding: [20, 40, 50, 20], // 画布上四周的留白宽度
         animate: true, // 是否启用图的动画
         modes: {  // 图上行为模式的集合
           default: ['drag-node', 'drag-canvas']
@@ -168,7 +168,14 @@ export default {
           select: {
 
           }
-        }
+        },
+        layout: {  // 布局将在调用  graph.render() 时执行计算
+          // Object，可选，布局的方法及其配置项，默认为 random 布局。
+          type: 'force', // 指定为力导向布局
+          preventOverlap: true, // 防止节点重叠
+          // nodeSize: 30        // 节点大小，用于算法中防止节点重叠时的碰撞检测。由于已经在元素配置中设置了每个节点的 size 属性，则不需要在此设置 nodeSize。
+          linkDistance: 100, // 指定边距离为100
+        },
       });
 
       // 数据的加载和图的渲染是两个步骤，可以分开进行
