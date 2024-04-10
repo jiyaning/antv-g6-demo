@@ -1,17 +1,19 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <G6Topology />
+    <G6Tutorial />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import G6Topology from './components/G6Topology.vue'
+import G6Tutorial from './components/G6Tutorial.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    G6Topology,
+    G6Tutorial,
   }
 }
 </script>
