@@ -4,7 +4,7 @@
  * @Author: ji.yaning
  * @Date: 2024-04-10 16:05:30
  * @LastEditors: ji.yaning
- * @LastEditTime: 2024-04-11 09:54:02
+ * @LastEditTime: 2024-04-11 09:59:26
 -->
 <template>
   <div>
@@ -230,6 +230,7 @@ export default {
         // plugins: [minimap ], // 将 minimap 实例配置到图上
         // plugins: [imageMinimap],// 配置 imageMinimap 插件
         plugins: [minimap, grid], // 将 grid 实例配置到图上
+        animate: true, // Boolean，可选，全局变化时否使用动画过渡
       });
 
       // 数据的加载和图的渲染是两个步骤，可以分开进行
