@@ -4,7 +4,7 @@
  * @Author: ji.yaning
  * @Date: 2024-04-10 16:05:30
  * @LastEditors: ji.yaning
- * @LastEditTime: 2024-04-11 09:35:10
+ * @LastEditTime: 2024-04-11 09:54:02
 -->
 <template>
   <div>
@@ -101,6 +101,22 @@ export default {
       this.initData = remoteData
     },
     initGraph () {
+      // 实例化 minimap 插件
+      const minimap = new G6.Minimap({
+        size: [100, 100],
+        className: 'minimap',
+        type: 'delegate',
+      });
+
+      // 实例化 Image Minimap 插件
+      const imageMinimap = new G6.ImageMinimap({
+        width: 200,
+        graphImg: 'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*eD7nT6tmYgAAAAAAAAAAAABkARQnAQ'
+      });
+
+      // 实例化 grid 插件
+      const grid = new G6.Grid();
+
       // 图实例化时，至少需要为图设置容器、宽、高
       this.graph = new G6.Graph({
         container: 'mountNode', // 指定挂载容器
@@ -110,7 +126,25 @@ export default {
         // fitViewPadding: [20, 40, 50, 20], // 画布上四周的留白宽度
         animate: true, // 是否启用图的动画
         modes: {  // 图上行为模式的集合
-          default: ['drag-node', 'drag-canvas', 'zoom-canvas'], // 允许拖拽节点、拖拽画布、放缩画布  默认模式能拖拽画布
+          default: [
+            'drag-node',  // 允许拖拽节点
+            'drag-canvas',  // 允许拖拽画布
+            'zoom-canvas',  // 允许放缩画布
+            {
+              type: 'tooltip', // 节点提示框
+              formatText (model) {
+                const text = 'label: ' + model.label + '<br/> class: ' + model.class;  // 节点提示框文本内容
+                return text;
+              },
+            },
+            {
+              type: 'edge-tooltip', // 边提示框
+              formatText (model) {
+                const text = 'source: ' + model.source + '<br/> target: ' + model.target + '<br/> weight: ' + model.weight;  // 边提示框文本内容
+                return text;
+              },
+            },
+          ], // 默认模式能拖拽画布
           edit: [], // 编辑模式不允许拖拽画布
         },
         defaultNode: {  // 节点默认的属性，包括节点的一般属性和样式属性（style）。
@@ -193,6 +227,9 @@ export default {
             stroke: 'steelblue',
           },
         },
+        // plugins: [minimap ], // 将 minimap 实例配置到图上
+        // plugins: [imageMinimap],// 配置 imageMinimap 插件
+        plugins: [minimap, grid], // 将 grid 实例配置到图上
       });
 
       // 数据的加载和图的渲染是两个步骤，可以分开进行
@@ -236,21 +273,15 @@ export default {
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+<style>
+/* 提示框的样式 */
+.g6-tooltip {
+  border: 1px solid #e2e2e2;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #545454;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px 8px;
+  box-shadow: rgb(174, 174, 174) 0px 0px 10px;
 }
 </style>
