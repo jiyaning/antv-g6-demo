@@ -4,7 +4,7 @@
  * @Author: ji.yaning
  * @Date: 2024-04-10 16:05:30
  * @LastEditors: ji.yaning
- * @LastEditTime: 2024-04-10 17:48:23
+ * @LastEditTime: 2024-04-11 09:35:10
 -->
 <template>
   <div>
@@ -110,7 +110,8 @@ export default {
         // fitViewPadding: [20, 40, 50, 20], // 画布上四周的留白宽度
         animate: true, // 是否启用图的动画
         modes: {  // 图上行为模式的集合
-          default: ['drag-node', 'drag-canvas']
+          default: ['drag-node', 'drag-canvas', 'zoom-canvas'], // 允许拖拽节点、拖拽画布、放缩画布  默认模式能拖拽画布
+          edit: [], // 编辑模式不允许拖拽画布
         },
         defaultNode: {  // 节点默认的属性，包括节点的一般属性和样式属性（style）。
           color: '#1078df',
@@ -176,11 +177,61 @@ export default {
           // nodeSize: 30        // 节点大小，用于算法中防止节点重叠时的碰撞检测。由于已经在元素配置中设置了每个节点的 size 属性，则不需要在此设置 nodeSize。
           linkDistance: 100, // 指定边距离为100
         },
+        // 节点不同状态下的样式集合
+        nodeStateStyles: {
+          hover: {  // 鼠标 hover 上节点，即 hover 状态为 true 时的样式
+            fill: 'lightsteelblue',
+          },
+          click: {  // 鼠标点击节点，即 click 状态为 true 时的样式
+            stroke: '#000',
+            lineWidth: 3,
+          },
+        },
+        // 边不同状态下的样式集合
+        edgeStateStyles: {
+          click: {   // 鼠标点击边，即 click 状态为 true 时的样式
+            stroke: 'steelblue',
+          },
+        },
       });
 
       // 数据的加载和图的渲染是两个步骤，可以分开进行
       this.graph.data(this.initData); // 加载数据
       this.graph.render(); // 渲染
+
+      // 鼠标进入节点
+      this.graph.on('node:mouseenter', (e) => {
+        const nodeItem = e.item; // 获取鼠标进入的节点元素对象
+        this.graph.setItemState(nodeItem, 'hover', true); // 设置当前节点的 hover 状态为 true
+      });
+
+      // 鼠标离开节点
+      this.graph.on('node:mouseleave', (e) => {
+        const nodeItem = e.item; // 获取鼠标离开的节点元素对象
+        this.graph.setItemState(nodeItem, 'hover', false); // 设置当前节点的 hover 状态为 false
+      });
+
+      // 点击节点
+      this.graph.on('node:click', (e) => {
+        // 先将所有当前是 click 状态的节点置为非 click 状态
+        const clickNodes = this.graph.findAllByState('node', 'click');
+        clickNodes.forEach((cn) => {
+          this.graph.setItemState(cn, 'click', false);
+        });
+        const nodeItem = e.item; // 获取被点击的节点元素对象
+        this.graph.setItemState(nodeItem, 'click', true); // 设置当前节点的 click 状态为 true
+      });
+
+      // 点击边
+      this.graph.on('edge:click', (e) => {
+        // 先将所有当前是 click 状态的边置为非 click 状态
+        const clickEdges = this.graph.findAllByState('edge', 'click');
+        clickEdges.forEach((ce) => {
+          this.graph.setItemState(ce, 'click', false);
+        });
+        const edgeItem = e.item; // 获取被点击的边元素对象
+        this.graph.setItemState(edgeItem, 'click', true); // 设置当前边的 click 状态为 true
+      });
     }
   }
 }
