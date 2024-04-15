@@ -4,13 +4,15 @@
  * @Author: ji.yaning
  * @Date: 2024-04-10 16:05:30
  * @LastEditors: ji.yaning
- * @LastEditTime: 2024-04-11 09:59:26
+ * @LastEditTime: 2024-04-15 16:49:51
 -->
 <template>
-  <div>
+  <div class="container">
     <div>绘制 Tutorial 案例</div>
     <!-- 创建一个用于容纳 G6 绘制的图的容器，通常为div标签。G6 在绘制时会在该容器下追加canvas标签，然后将图绘制在其中。 -->
-    <div id="mountNode"></div>
+    <div class="wrap">
+      <div id="mountNode"></div>
+    </div>
   </div>
 </template>
 
@@ -68,6 +70,9 @@ export default {
         if (!node.style) {
           node.style = {};
         }
+        if (node.id == '16' || node.id == '17') {
+          node.comboId = 'comboC2' // comboId 属性，表示该节点与某个 Combo 的从属关系
+        }
         switch (
         node.class // 根据节点数据中的 class 属性配置图形
         ) {
@@ -98,6 +103,21 @@ export default {
         edge.style.stroke = '#dc402b';
       });
 
+      // combos 数组，用于定义图上所有的 Combo 及其配置
+      remoteData.combos = [
+        {
+          id: 'comboC2',  // Combo 的唯一标识，必须是 string 类型，必须唯一
+          label: 'Ellipse',  // Combo 的文本标签
+          parentId: 'combo'  // Combo 的父 Combo 的 ID
+        },
+        {
+          id: 'combo',
+          type: 'rect', // 指定该 Combo 的类型，可以是内置 Combo 的类型名，也可以是自定义 Combo 的类型名。默认是 'circle'
+        }
+      ]
+
+      console.log("getData ~ remoteData:", remoteData)
+
       this.initData = remoteData
     },
     initGraph () {
@@ -114,7 +134,7 @@ export default {
         graphImg: 'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*eD7nT6tmYgAAAAAAAAAAAABkARQnAQ'
       });
 
-      // 实例化 grid 插件
+      // 实例化 grid 网格插件
       const grid = new G6.Grid();
 
       // 图实例化时，至少需要为图设置容器、宽、高
@@ -130,6 +150,8 @@ export default {
             'drag-node',  // 允许拖拽节点
             'drag-canvas',  // 允许拖拽画布
             'zoom-canvas',  // 允许放缩画布
+            'drag-combo', // 拖动 Combo
+            'collapse-expand-combo', // 双击 Combo 收起和展开 Combo
             {
               type: 'tooltip', // 节点提示框
               formatText (model) {
@@ -209,7 +231,7 @@ export default {
           type: 'force', // 指定为力导向布局
           preventOverlap: true, // 防止节点重叠
           // nodeSize: 30        // 节点大小，用于算法中防止节点重叠时的碰撞检测。由于已经在元素配置中设置了每个节点的 size 属性，则不需要在此设置 nodeSize。
-          linkDistance: 100, // 指定边距离为100
+          linkDistance: 200, // 指定边距离为200
         },
         // 节点不同状态下的样式集合
         nodeStateStyles: {
@@ -231,6 +253,32 @@ export default {
         // plugins: [imageMinimap],// 配置 imageMinimap 插件
         plugins: [minimap, grid], // 将 grid 实例配置到图上
         animate: true, // Boolean，可选，全局变化时否使用动画过渡
+        // 必须将 groupByTypes 设置为 false，带有 combo 的图中元素的视觉层级才能合理
+        groupByTypes: false,
+        defaultCombo: {
+          // ... 其他属性
+          style: {  // 通过 style 配置来修改 Combo 的填充色、边框颜色、阴影等属性
+            fill: '#CCC',
+            stroke: '#eaff8f',
+            lineWidth: 5,
+            // ... 其他属性
+          },
+          labelCfg: {
+            position: 'top',
+            offset: [10, 10, 10, 10],
+            style: {
+              fill: '#666',
+              fontSize: '20',
+              opacity: 0.8
+            },
+          },
+          // 通过 collapsedSubstituteIcon 配置 Combo 在收起状态下，展示在中心的图片 Icon
+          collapsedSubstituteIcon: {
+            show: true,
+            img: 'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*IEQFS5VtXX8AAAAAAAAAAABkARQnAQ',
+            // ... 其他属性
+          },
+        },
       });
 
       // 数据的加载和图的渲染是两个步骤，可以分开进行
@@ -275,6 +323,23 @@ export default {
 }
 </script>
 <style>
+.container {
+  background-color: #f7f7f7;
+  padding: 20px;
+}
+.container .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.container .wrap #mountNode {
+  background: #fcfcfd;
+  border-radius: 4px;
+  position: relative;
+}
+/* .g6-grid-container {
+  z-index: 0 !important;
+} */
 /* 提示框的样式 */
 .g6-tooltip {
   border: 1px solid #e2e2e2;
@@ -284,5 +349,6 @@ export default {
   background-color: rgba(255, 255, 255, 0.9);
   padding: 10px 8px;
   box-shadow: rgb(174, 174, 174) 0px 0px 10px;
+  position: absolute;
 }
 </style>
